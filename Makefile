@@ -9,6 +9,11 @@ REPO_NAME ?= microtrader
 TEST_REPO_NAME ?= microtrader-dev
 TEST_DIR ?= build/test-results/junit/
 
+#ECR configuration
+DOCKER_REGISTRY ?= 326572743672.dkr.ecr.ap-southeast-2.amazonaws.com
+AWS_ACCOUNT_ID ?= 326572743672
+DOCKER_LOGIN_EXPRESSION := eval $$(aws ecr get-login --no-include-email --registry-ids $(AWS_ACCOUNT_ID))
+
 # Release settings
 export HTTP_PORT ?= 8000
 export AUDIT_HTTP_ROOT ?= /audit/
@@ -123,7 +128,7 @@ logout:
 	@ docker logout
 	${INFO} "Logged out of Docker registry $$DOCKER_REGISTRY"
 
-# Publishes image(s) tagged using make tag commands
+#Publishes image(s) tagged using make tag commands
 publish:
 	${INFO} "Publishing release images to $(DOCKER_REGISTRY)/$(ORG_NAME)..."
 	@ $(call publish_image,$(RELEASE_ARGS),microtrader-quote,$(DOCKER_REGISTRY)/$(ORG_NAME)/microtrader-quote)
@@ -131,6 +136,7 @@ publish:
 	@ $(call publish_image,$(RELEASE_ARGS),microtrader-portfolio,$(DOCKER_REGISTRY)/$(ORG_NAME)/microtrader-portfolio)
 	@ $(call publish_image,$(RELEASE_ARGS),microtrader-dashboard,$(DOCKER_REGISTRY)/$(ORG_NAME)/microtrader-dashboard)
 	${INFO} "Publish complete"
+
 
 # Executes docker-compose commands in release environment
 #   e.g. 'make compose ps' is the equivalent of docker-compose -f path/to/dockerfile -p <project-name> ps
